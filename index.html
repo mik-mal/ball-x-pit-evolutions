@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ball X Pit - Evolution Trees</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1500px;
+            width: 100%;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #9ca3af;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-nosferatu {
+            background: #8b0000;
+            color: white;
+        }
+        
+        .btn-nosferatu.inactive {
+            background: #374151;
+            color: #9ca3af;
+        }
+        
+        .btn-satan {
+            background: #ff4500;
+            color: white;
+        }
+        
+        .btn-satan.inactive {
+            background: #374151;
+            color: #9ca3af;
+        }
+        
+        .btn-blackhole {
+            background: #4b0082;
+            color: white;
+        }
+        
+        .btn-blackhole.inactive {
+            background: #374151;
+            color: #9ca3af;
+        }
+        
+        .btn-nuclear {
+            background: #22c55e;
+            color: white;
+        }
+        
+        .btn-nuclear.inactive {
+            background: #374151;
+            color: #9ca3af;
+        }
+        
+        .canvas-container {
+            background: #1f2937;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+        
+        canvas {
+            border: 2px solid #374151;
+            border-radius: 8px;
+            cursor: default;
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .tooltip {
+            position: fixed;
+            background: #111827;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5);
+            font-size: 13px;
+            max-width: 300px;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+            border: 1px solid #374151;
+        }
+        
+        .tooltip-title {
+            font-weight: bold;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        
+        .tooltip-desc {
+            color: #d1d5db;
+            line-height: 1.4;
+        }
+        
+        .instructions {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 13px;
+            margin-top: 16px;
+        }
+        
+        .footer {
+            text-align: center;
+            color: #6b7280;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+        
+        .footer a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ball X Pit - Evolution Trees</h1>
+        <div class="subtitle">Interactive visualization of ball evolution paths</div>
+        
+        <div class="controls">
+            <button class="btn btn-nosferatu" data-lineage="nosferatu">Nosferatu</button>
+            <button class="btn btn-satan" data-lineage="satan">Satan</button>
+            <button class="btn btn-blackhole" data-lineage="blackHole">Black Hole</button>
+            <button class="btn btn-nuclear" data-lineage="nuclearBomb">Nuclear Bomb</button>
+        </div>
+        
+        <div class="canvas-container">
+            <canvas id="evolutionCanvas" width="1400" height="600"></canvas>
+        </div>
+        
+        <div class="instructions">
+            Click final evolutions to highlight their path | Hover over balls for details
+        </div>
+        
+        <div class="footer">
+            Created for <a href="https://ballpit.fandom.com/wiki/Balls" target="_blank">Ball X Pit Wiki</a>
+        </div>
+    </div>
+    
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-title" id="tooltipTitle"></div>
+        <div class="tooltip-desc" id="tooltipDesc"></div>
+    </div>
+
+    <script>
+        // State
+        const state = {
+            hoveredNode: null,
+            selectedPath: null,
+            visibleLineages: {
+                nosferatu: true,
+                nuclearBomb: true,
+                satan: true,
+                blackHole: true
+            }
+        };
+
+        // Colors
+        const colors = {
+            nosferatu: '#8b0000',
+            nuclearBomb: '#22c55e',
+            satan: '#ff4500',
+            blackHole: '#4b0082'
+        };
+
+        // Descriptions
+        const descriptions = {
+            'Vampire': 'Each hit has a 4.5% chance of healing 1 health',
+            'Bleed': 'Inflicts 2 stacks of bleed. Bleeding enemies receive 1 damage per stack when hit',
+            'Dark': 'Deals 3.0x damage but destroys itself after hitting an enemy. Has a 3 second cooldown',
+            'Brood Mother': 'Has a 25% chance of birthing a baby ball each time it hits an enemy',
+            'Egg Sac': 'Explodes into 2-4 baby balls on hitting an enemy. Has a 3 second cooldown',
+            'Charm': 'Each hit has a 4% chance of charming the enemy for 5 seconds',
+            'Light': 'Blinds enemies on hit for 3 seconds. Blinded units have 50% chance of missing',
+            'Burn': 'Add 1 stack of burn on hit for 3 seconds. Burnt units are dealt 4-8 damage per stack',
+            'Iron': 'Deals double damage but moves 40% slower',
+            'Poison': 'Applies 1 stack of poison on hit. Each stack deals 1-4 damage per second',
+            'Vampire Lord': 'Each hit inflicts 3 stacks of bleed. Heals 1 health when hitting an enemy with 10+ stacks',
+            'Mosquito King': 'Spawns a mosquito each hit. Mosquitos deal 80-120 damage and steal 1 health on kill',
+            'Spider Queen': 'Has a 25% chance of birthing an Egg Sac each time it hits an enemy',
+            'Incubus': 'Each hit has 4% chance of charming enemy for 9 seconds. Charmed enemies curse nearby enemies',
+            'Succubus': 'Each hit has 4% chance of charming enemy for 9 seconds. Heals 1 when hitting charmed enemy',
+            'Sun': 'Blind all enemies in view and add 1 stack of burn every second',
+            'Bomb': 'Explodes when hitting an enemy, dealing 150-300 damage to nearby enemies',
+            'Nosferatu': 'Spawns a vampire bat each bounce. Bats deal 132-176 damage and turn into Vampire Lords',
+            'Satan': 'Add 1 stack of burn per second to all enemies and make them go berserk',
+            'Black Hole': 'Instantly kills the first non-boss enemy hit, but destroys itself. 7 second cooldown',
+            'Nuclear Bomb': 'Explodes dealing 300-500 damage and applies radiation stacks. 3 second cooldown'
+        };
+
+        // Nodes
+        const nodes = {
+            'Vampire': { x: 100, y: 60, type: 'ball', lineages: ['nosferatu', 'satan'], label: 'Vampire' },
+            'Bleed': { x: 200, y: 60, type: 'ball', lineages: ['nosferatu'], label: 'Bleed' },
+            'Dark': { x: 300, y: 60, type: 'ball', lineages: ['nosferatu', 'blackHole', 'satan'], label: 'Dark' },
+            'Brood Mother': { x: 400, y: 60, type: 'ball', lineages: ['nosferatu'], label: 'Brood Mother' },
+            'Egg Sac': { x: 500, y: 60, type: 'ball', lineages: ['nosferatu'], label: 'Egg Sac' },
+            'Charm': { x: 650, y: 60, type: 'ball', lineages: ['satan'], label: 'Charm' },
+            'Light': { x: 850, y: 60, type: 'ball', lineages: ['blackHole'], label: 'Light' },
+            'Burn': { x: 950, y: 60, type: 'ball', lineages: ['blackHole', 'nuclearBomb'], label: 'Burn' },
+            'Iron': { x: 1150, y: 60, type: 'ball', lineages: ['nuclearBomb'], label: 'Iron' },
+            'Poison': { x: 1250, y: 60, type: 'ball', lineages: ['nuclearBomb'], label: 'Poison' },
+            'VL_Combo1': { x: 150, y: 170, type: 'combo', lineages: ['nosferatu'], label: 'V+B' },
+            'VL_Combo2': { x: 250, y: 170, type: 'combo', lineages: ['nosferatu'], label: 'V+D' },
+            'MK_Combo': { x: 350, y: 170, type: 'combo', lineages: ['nosferatu'], label: 'V+BM' },
+            'SQ_Combo': { x: 450, y: 170, type: 'combo', lineages: ['nosferatu'], label: 'BM+ES' },
+            'Inc_Combo': { x: 600, y: 170, type: 'combo', lineages: ['satan'], label: 'Ch+D' },
+            'Succ_Combo': { x: 700, y: 170, type: 'combo', lineages: ['satan'], label: 'Ch+V' },
+            'Sun_Combo': { x: 900, y: 170, type: 'combo', lineages: ['blackHole'], label: 'B+L' },
+            'Bomb_Combo': { x: 1050, y: 170, type: 'combo', lineages: ['nuclearBomb'], label: 'B+I' },
+            'Vampire Lord': { x: 200, y: 290, type: 'ball', lineages: ['nosferatu'], label: 'Vampire Lord' },
+            'Mosquito King': { x: 350, y: 290, type: 'ball', lineages: ['nosferatu'], label: 'Mosquito King' },
+            'Spider Queen': { x: 450, y: 290, type: 'ball', lineages: ['nosferatu'], label: 'Spider Queen' },
+            'Incubus': { x: 600, y: 290, type: 'ball', lineages: ['satan'], label: 'Incubus' },
+            'Succubus': { x: 700, y: 290, type: 'ball', lineages: ['satan'], label: 'Succubus' },
+            'Sun': { x: 900, y: 290, type: 'ball', lineages: ['blackHole'], label: 'Sun' },
+            'Bomb': { x: 1050, y: 290, type: 'ball', lineages: ['nuclearBomb'], label: 'Bomb' },
+            'NOS_Combo': { x: 333, y: 410, type: 'combo', lineages: ['nosferatu'], label: 'VL+MK+SQ' },
+            'Satan_Combo': { x: 650, y: 410, type: 'combo', lineages: ['satan'], label: 'I+S' },
+            'BH_Combo': { x: 900, y: 410, type: 'combo', lineages: ['blackHole'], label: 'D+Su' },
+            'NB_Combo': { x: 1150, y: 410, type: 'combo', lineages: ['nuclearBomb'], label: 'Bo+P' },
+            'Nosferatu': { x: 333, y: 530, type: 'ball', lineages: ['nosferatu'], label: 'Nosferatu' },
+            'Satan': { x: 650, y: 530, type: 'ball', lineages: ['satan'], label: 'Satan' },
+            'Black Hole': { x: 900, y: 530, type: 'ball', lineages: ['blackHole'], label: 'Black Hole' },
+            'Nuclear Bomb': { x: 1150, y: 530, type: 'ball', lineages: ['nuclearBomb'], label: 'Nuclear Bomb' }
+        };
+
+        // Edges
+        const edges = [
+            { from: 'Vampire', to: 'VL_Combo1', lineage: 'nosferatu' },
+            { from: 'Bleed', to: 'VL_Combo1', lineage: 'nosferatu' },
+            { from: 'Vampire', to: 'VL_Combo2', lineage: 'nosferatu' },
+            { from: 'Dark', to: 'VL_Combo2', lineage: 'nosferatu' },
+            { from: 'Vampire', to: 'MK_Combo', lineage: 'nosferatu' },
+            { from: 'Brood Mother', to: 'MK_Combo', lineage: 'nosferatu' },
+            { from: 'Brood Mother', to: 'SQ_Combo', lineage: 'nosferatu' },
+            { from: 'Egg Sac', to: 'SQ_Combo', lineage: 'nosferatu' },
+            { from: 'VL_Combo1', to: 'Vampire Lord', lineage: 'nosferatu' },
+            { from: 'VL_Combo2', to: 'Vampire Lord', lineage: 'nosferatu' },
+            { from: 'MK_Combo', to: 'Mosquito King', lineage: 'nosferatu' },
+            { from: 'SQ_Combo', to: 'Spider Queen', lineage: 'nosferatu' },
+            { from: 'Vampire Lord', to: 'NOS_Combo', lineage: 'nosferatu' },
+            { from: 'Mosquito King', to: 'NOS_Combo', lineage: 'nosferatu' },
+            { from: 'Spider Queen', to: 'NOS_Combo', lineage: 'nosferatu' },
+            { from: 'NOS_Combo', to: 'Nosferatu', lineage: 'nosferatu' },
+            { from: 'Burn', to: 'Bomb_Combo', lineage: 'nuclearBomb' },
+            { from: 'Iron', to: 'Bomb_Combo', lineage: 'nuclearBomb' },
+            { from: 'Bomb_Combo', to: 'Bomb', lineage: 'nuclearBomb' },
+            { from: 'Bomb', to: 'NB_Combo', lineage: 'nuclearBomb' },
+            { from: 'Poison', to: 'NB_Combo', lineage: 'nuclearBomb' },
+            { from: 'NB_Combo', to: 'Nuclear Bomb', lineage: 'nuclearBomb' },
+            { from: 'Charm', to: 'Inc_Combo', lineage: 'satan' },
+            { from: 'Dark', to: 'Inc_Combo', lineage: 'satan' },
+            { from: 'Inc_Combo', to: 'Incubus', lineage: 'satan' },
+            { from: 'Charm', to: 'Succ_Combo', lineage: 'satan' },
+            { from: 'Vampire', to: 'Succ_Combo', lineage: 'satan' },
+            { from: 'Succ_Combo', to: 'Succubus', lineage: 'satan' },
+            { from: 'Incubus', to: 'Satan_Combo', lineage: 'satan' },
+            { from: 'Succubus', to: 'Satan_Combo', lineage: 'satan' },
+            { from: 'Satan_Combo', to: 'Satan', lineage: 'satan' },
+            { from: 'Burn', to: 'Sun_Combo', lineage: 'blackHole' },
+            { from: 'Light', to: 'Sun_Combo', lineage: 'blackHole' },
+            { from: 'Sun_Combo', to: 'Sun', lineage: 'blackHole' },
+            { from: 'Dark', to: 'BH_Combo', lineage: 'blackHole' },
+            { from: 'Sun', to: 'BH_Combo', lineage: 'blackHole' },
+            { from: 'BH_Combo', to: 'Black Hole', lineage: 'blackHole' }
+        ];
+
+        // Get path nodes
+        function getPathNodes(finalNode) {
+            const pathNodes = new Set([finalNode]);
+            const lineage = nodes[finalNode].lineages[0];
+            const pathEdges = edges.filter(e => e.lineage === lineage);
+            
+            function addUpstream(nodeName) {
+                pathNodes.add(nodeName);
+                pathEdges.forEach(edge => {
+                    if (edge.to === nodeName) {
+                        addUpstream(edge.from);
+                    }
+                });
+            }
+            
+            addUpstream(finalNode);
+            return pathNodes;
+        }
+
+        // Check if node is visible
+        function isNodeVisible(nodeName) {
+            const node = nodes[nodeName];
+            return node.lineages.some(l => state.visibleLineages[l]);
+        }
+
+        // Check if edge is visible
+        function isEdgeVisible(edge) {
+            return state.visibleLineages[edge.lineage] && 
+                   isNodeVisible(edge.from) && 
+                   isNodeVisible(edge.to);
+        }
+
+        // Draw canvas
+        function draw() {
+            const canvas = document.getElementById('evolutionCanvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            const radius = 35;
+
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, width, height);
+
+            const pathNodes = state.selectedPath ? getPathNodes(state.selectedPath) : null;
+
+            // Draw edges
+            ctx.lineWidth = 2;
+            edges.forEach(edge => {
+                if (!isEdgeVisible(edge)) return;
+                
+                const from = nodes[edge.from];
+                const to = nodes[edge.to];
+                const inPath = pathNodes ? (pathNodes.has(edge.from) && pathNodes.has(edge.to)) : true;
+                
+                ctx.strokeStyle = inPath ? colors[edge.lineage] : colors[edge.lineage] + '30';
+                ctx.lineWidth = inPath ? 3 : 2;
+                ctx.beginPath();
+                ctx.moveTo(from.x, from.y);
+                ctx.lineTo(to.x, to.y);
+                ctx.stroke();
+            });
+
+            // Draw nodes
+            Object.entries(nodes).forEach(([name, node]) => {
+                if (!isNodeVisible(name)) return;
+                
+                const inPath = pathNodes ? pathNodes.has(name) : true;
+                const isHovered = name === state.hoveredNode;
+                const opacity = inPath ? 1 : 0.3;
+
+                if (node.type === 'ball') {
+                    const nodeRadius = isHovered ? radius + 3 : radius;
+                    
+                    if (node.lineages.length === 1) {
+                        ctx.beginPath();
+                        ctx.arc(node.x, node.y, nodeRadius, 0, 2 * Math.PI);
+                        ctx.fillStyle = colors[node.lineages[0]] + (opacity === 1 ? '' : '4D');
+                        ctx.fill();
+                    } else {
+                        const gradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, nodeRadius);
+                        if (node.lineages.length === 2) {
+                            gradient.addColorStop(0, colors[node.lineages[0]] + (opacity === 1 ? '' : '4D'));
+                            gradient.addColorStop(1, colors[node.lineages[1]] + (opacity === 1 ? '' : '4D'));
+                        } else if (node.lineages.length === 3) {
+                            gradient.addColorStop(0, colors[node.lineages[0]] + (opacity === 1 ? '' : '4D'));
+                            gradient.addColorStop(0.5, colors[node.lineages[1]] + (opacity === 1 ? '' : '4D'));
+                            gradient.addColorStop(1, colors[node.lineages[2]] + (opacity === 1 ? '' : '4D'));
+                        }
+                        ctx.beginPath();
+                        ctx.arc(node.x, node.y, nodeRadius, 0, 2 * Math.PI);
+                        ctx.fillStyle = gradient;
+                        ctx.fill();
+                    }
+                    
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, nodeRadius, 0, 2 * Math.PI);
+                    ctx.strokeStyle = isHovered ? '#fbbf24' : '#e5e7eb';
+                    ctx.lineWidth = isHovered ? 3 : 2;
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 10px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    
+                    const words = node.label.split(' ');
+                    if (words.length > 1) {
+                        ctx.fillText(words[0], node.x, node.y - 6);
+                        ctx.fillText(words.slice(1).join(' '), node.x, node.y + 6);
+                    } else {
+                        ctx.fillText(node.label, node.x, node.y);
+                    }
+                } else if (node.type === 'combo') {
+                    const size = 50;
+                    ctx.fillStyle = colors[node.lineages[0]] + (opacity === 1 ? '' : '4D');
+                    ctx.fillRect(node.x - size/2, node.y - size/2, size, size);
+                    ctx.strokeStyle = '#9ca3af';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(node.x - size/2, node.y - size/2, size, size);
+
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 9px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(node.label, node.x, node.y);
+                }
+            });
+        }
+
+        // Handle canvas click
+        function handleCanvasClick(e) {
+            const canvas = document.getElementById('evolutionCanvas');
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const radius = 35;
+
+            let clicked = null;
+            Object.entries(nodes).forEach(([name, node]) => {
+                if (node.type === 'ball') {
+                    const dist = Math.sqrt((x - node.x) ** 2 + (y - node.y) ** 2);
+                    if (dist <= radius) {
+                        clicked = name;
+                    }
+                }
+            });
+
+            if (clicked && ['Nosferatu', 'Satan', 'Black Hole', 'Nuclear Bomb'].includes(clicked)) {
+                state.selectedPath = state.selectedPath === clicked ? null : clicked;
+                draw();
+            } else if (clicked) {
+                state.selectedPath = null;
+                draw();
+            }
+        }
+
+        // Handle mouse move
+        function handleMouseMove(e) {
+            const canvas = document.getElementById('evolutionCanvas');
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const radius = 35;
+
+            let hovered = null;
+            Object.entries(nodes).forEach(([name, node]) => {
+                if (node.type === 'ball') {
+                    const dist = Math.sqrt((x - node.x) ** 2 + (y - node.y) ** 2);
+                    if (dist <= radius) {
+                        hovered = name;
+                    }
+                }
+            });
+
+            if (hovered !== state.hoveredNode) {
+                state.hoveredNode = hovered;
+                draw();
+            }
+
+            const tooltip = document.getElementById('tooltip');
+            if (hovered && descriptions[hovered]) {
+                tooltip.style.display = 'block';
+                tooltip.style.left = e.clientX + 15 + 'px';
+                tooltip.style.top = e.clientY + 15 + 'px';
+                document.getElementById('tooltipTitle').textContent = hovered;
+                document.getElementById('tooltipDesc').textContent = descriptions[hovered];
+            } else {
+                tooltip.style.display = 'none';
+            }
+
+            canvas.style.cursor = hovered ? 'pointer' : 'default';
+        }
+
+        // Handle mouse leave
+        function handleMouseLeave() {
+            state.hoveredNode = null;
+            document.getElementById('tooltip').style.display = 'none';
+            draw();
+        }
+
+        // Toggle lineage
+        function toggleLineage(lineage) {
+            state.visibleLineages[lineage] = !state.visibleLineages[lineage];
+            state.selectedPath = null;
+            
+            // Update button states
+            document.querySelectorAll('.btn').forEach(btn => {
+                const btnLineage = btn.getAttribute('data-lineage');
+                if (state.visibleLineages[btnLineage]) {
+                    btn.classList.remove('inactive');
+                } else {
+                    btn.classList.add('inactive');
+                }
+            });
+            
+            draw();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('evolutionCanvas');
+            canvas.addEventListener('click', handleCanvasClick);
+            canvas.addEventListener('mousemove', handleMouseMove);
+            canvas.addEventListener('mouseleave', handleMouseLeave);
+
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const lineage = btn.getAttribute('data-lineage');
+                    toggleLineage(lineage);
+                });
+            });
+
+            draw();
+        });
+    </script>
+</body>
+</html>
