@@ -181,7 +181,7 @@
 <body>
     <div class="container">
         <h1>Ball X Pit - Evolution Trees</h1>
-        <div class="subtitle">Interactive visualization of ball evolution paths</div>
+        <div class="subtitle">Interactive visualization of secondary ball evolution paths</div>
         
         <div class="controls">
             <button class="btn btn-nosferatu" data-lineage="nosferatu">Nosferatu</button>
@@ -256,36 +256,36 @@
 
         // Nodes
         const nodes = {
-            'Vampire': { x: 100, y: 60, type: 'ball', lineages: ['nosferatu', 'satan'], label: 'Vampire' },
-            'Bleed': { x: 200, y: 60, type: 'ball', lineages: ['nosferatu'], label: 'Bleed' },
-            'Dark': { x: 300, y: 60, type: 'ball', lineages: ['nosferatu', 'blackHole', 'satan'], label: 'Dark' },
-            'Brood Mother': { x: 400, y: 60, type: 'ball', lineages: ['nosferatu'], label: 'Brood Mother' },
-            'Egg Sac': { x: 500, y: 60, type: 'ball', lineages: ['nosferatu'], label: 'Egg Sac' },
+            'Egg Sac': { x: 100, y: 60, type: 'ball', lineages: ['nosferatu'], label: 'Egg Sac' },
+            'Brood Mother': { x: 200, y: 60, type: 'ball', lineages: ['nosferatu'], label: 'Brood Mother' },
+            'Vampire': { x: 300, y: 60, type: 'ball', lineages: ['nosferatu', 'satan'], label: 'Vampire' },
+            'Bleed': { x: 400, y: 60, type: 'ball', lineages: ['nosferatu'], label: 'Bleed' },
+            'Dark': { x: 500, y: 60, type: 'ball', lineages: ['nosferatu', 'blackHole', 'satan'], label: 'Dark' },
             'Charm': { x: 650, y: 60, type: 'ball', lineages: ['satan'], label: 'Charm' },
             'Light': { x: 850, y: 60, type: 'ball', lineages: ['blackHole'], label: 'Light' },
             'Burn': { x: 950, y: 60, type: 'ball', lineages: ['blackHole', 'nuclearBomb'], label: 'Burn' },
             'Iron': { x: 1150, y: 60, type: 'ball', lineages: ['nuclearBomb'], label: 'Iron' },
             'Poison': { x: 1250, y: 60, type: 'ball', lineages: ['nuclearBomb'], label: 'Poison' },
-            'VL_Combo1': { x: 150, y: 170, type: 'combo', lineages: ['nosferatu'], label: 'V+B' },
-            'VL_Combo2': { x: 250, y: 170, type: 'combo', lineages: ['nosferatu'], label: 'V+D' },
-            'MK_Combo': { x: 350, y: 170, type: 'combo', lineages: ['nosferatu'], label: 'V+BM' },
-            'SQ_Combo': { x: 450, y: 170, type: 'combo', lineages: ['nosferatu'], label: 'BM+ES' },
+            'VL_Combo1': { x: 350, y: 170, type: 'combo', lineages: ['nosferatu'], label: 'V+B' },
+            'VL_Combo2': { x: 400, y: 170, type: 'combo', lineages: ['nosferatu'], label: 'V+D' },
+            'MK_Combo': { x: 250, y: 170, type: 'combo', lineages: ['nosferatu'], label: 'V+BM' },
+            'SQ_Combo': { x: 150, y: 170, type: 'combo', lineages: ['nosferatu'], label: 'BM+ES' },
             'Inc_Combo': { x: 600, y: 170, type: 'combo', lineages: ['satan'], label: 'Ch+D' },
             'Succ_Combo': { x: 700, y: 170, type: 'combo', lineages: ['satan'], label: 'Ch+V' },
             'Sun_Combo': { x: 900, y: 170, type: 'combo', lineages: ['blackHole'], label: 'B+L' },
             'Bomb_Combo': { x: 1050, y: 170, type: 'combo', lineages: ['nuclearBomb'], label: 'B+I' },
-            'Vampire Lord': { x: 200, y: 290, type: 'ball', lineages: ['nosferatu'], label: 'Vampire Lord' },
-            'Mosquito King': { x: 350, y: 290, type: 'ball', lineages: ['nosferatu'], label: 'Mosquito King' },
-            'Spider Queen': { x: 450, y: 290, type: 'ball', lineages: ['nosferatu'], label: 'Spider Queen' },
+            'Vampire Lord': { x: 375, y: 290, type: 'ball', lineages: ['nosferatu'], label: 'Vampire Lord' },
+            'Mosquito King': { x: 250, y: 290, type: 'ball', lineages: ['nosferatu'], label: 'Mosquito King' },
+            'Spider Queen': { x: 150, y: 290, type: 'ball', lineages: ['nosferatu'], label: 'Spider Queen' },
             'Incubus': { x: 600, y: 290, type: 'ball', lineages: ['satan'], label: 'Incubus' },
             'Succubus': { x: 700, y: 290, type: 'ball', lineages: ['satan'], label: 'Succubus' },
             'Sun': { x: 900, y: 290, type: 'ball', lineages: ['blackHole'], label: 'Sun' },
             'Bomb': { x: 1050, y: 290, type: 'ball', lineages: ['nuclearBomb'], label: 'Bomb' },
-            'NOS_Combo': { x: 333, y: 410, type: 'combo', lineages: ['nosferatu'], label: 'VL+MK+SQ' },
+            'NOS_Combo': { x: 258, y: 410, type: 'combo', lineages: ['nosferatu'], label: 'VL+MK+SQ' },
             'Satan_Combo': { x: 650, y: 410, type: 'combo', lineages: ['satan'], label: 'I+S' },
             'BH_Combo': { x: 900, y: 410, type: 'combo', lineages: ['blackHole'], label: 'D+Su' },
             'NB_Combo': { x: 1150, y: 410, type: 'combo', lineages: ['nuclearBomb'], label: 'Bo+P' },
-            'Nosferatu': { x: 333, y: 530, type: 'ball', lineages: ['nosferatu'], label: 'Nosferatu' },
+            'Nosferatu': { x: 258, y: 530, type: 'ball', lineages: ['nosferatu'], label: 'Nosferatu' },
             'Satan': { x: 650, y: 530, type: 'ball', lineages: ['satan'], label: 'Satan' },
             'Black Hole': { x: 900, y: 530, type: 'ball', lineages: ['blackHole'], label: 'Black Hole' },
             'Nuclear Bomb': { x: 1150, y: 530, type: 'ball', lineages: ['nuclearBomb'], label: 'Nuclear Bomb' }
