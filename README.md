@@ -12,7 +12,7 @@ An interactive visualization tool for exploring ball evolution paths in the game
 
 ## Live Demo
 
-Visit the live interactive visualization: [https://YOUR-USERNAME.github.io/ball-evolution-tree/](https://YOUR-USERNAME.github.io/ball-evolution-tree/)
+Visit the live interactive visualization: https://mik-mal.github.io/ball-x-pit-evolutions/
 
 ## How to Use
 
@@ -37,7 +37,7 @@ Base balls → Bomb → Nuclear Bomb
 
 ## About
 
-Created for the [Ball X Pit Wiki](https://ballpit.fandom.com/wiki/Balls) to help players understand the complex ball evolution system.
+Created for the [Ball X Pit Wiki](https://ballpit.fandom.com/wiki/Balls) to help players understand ball evolutions.
 
 ## Contributing
 
